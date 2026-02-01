@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <style>
+        :root {
+            --primary-red: #ff4d6d;
+            --soft-pink: #ffccd5;
+            --dark-pink: #c9184a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--soft-pink);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .container {
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 80%;
+        }
+
+        h1 {
+            color: var(--dark-pink);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            min-height: 100px;
+        }
+
+        button {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        #yesBtn {
+            background-color: #4CAF50;
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        #noBtn {
+            background-color: var(--primary-red);
+            color: white;
+            position: absolute;
+            z-index: 999;
+        }
+
+        /* Floating Balloons */
+        .balloon {
+            position: absolute;
+            bottom: -100px;
+            width: 40px;
+            height: 55px;
+            background: var(--primary-red);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 7s infinite ease-in;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-120vh) rotate(20deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="question">Will you be my Valentine? ❤️</h1>
+        <div class="buttons">
+            <button id="yesBtn" onclick="celebrate()">Yes</button>
+            <button id="noBtn" onclick="plead()">No</button>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const questionText = document.getElementById('question');
+        const yesBtn = document.getElementById('yesBtn');
+        
+        let noClickCount = 0;
+        const arguments = [
+            "Are you sure?? 🥺",
+            "Pachi mara jevo handsome boy nai male ho! 😎",
+            "Please mani Jane... 😭🥰"
+        ];
+
+        // 1. Make the button move on hover
+        noBtn.addEventListener('mouseover', moveButton);
+
+        function moveButton() {
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+            noBtn.style.left = `${x}px`;
+            noBtn.style.top = `${y}px`;
+        }
+
+        // 2. If she actually manages to click it
+        function plead() {
+            if (noClickCount < arguments.length) {
+                questionText.innerHTML = arguments[noClickCount];
+                noClickCount++;
+                
+                // Make the YES button bigger every time she says no
+                let currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
+                yesBtn.style.fontSize = (currentSize + 10) + "px";
+                yesBtn.style.padding = "20px 45px";
+            } else {
+                questionText.innerHTML = "Okay, you have no choice now! Say Yes! 😂";
+                noBtn.style.display = "none"; // Hide the No button finally
+            }
+            moveButton(); // Move it again after clicking
+        }
+
+        // 3. Success logic
+        function celebrate() {
+            questionText.innerHTML = "Yay! I knew you'd say Yes! 🌹✨";
+            document.querySelector('.buttons').innerHTML = "<h2 style='color: #4CAF50;'>Best Choice Ever! ❤️</h2>";
+            
+            // Shower of balloons
+            for(let i = 0; i < 50; i++) {
+                setTimeout(createBalloon, i * 100);
+            }
+        }
+
+        function createBalloon() {
+            const balloon = document.createElement("div");
+            balloon.className = "balloon";
+            balloon.style.left = Math.random() * 100 + "vw";
+            balloon.style.backgroundColor = ['#ff4d6d', '#ff758f', '#ffccd5'][Math.floor(Math.random() * 3)];
+            balloon.style.animationDelay = Math.random() * 2 + "s";
+            document.body.appendChild(balloon);
+        }
+
+        // Initial background balloons
+        for(let i = 0; i < 10; i++) createBalloon();
+    </script>
+</body>
+</html>

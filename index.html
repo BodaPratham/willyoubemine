@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Be My Valentine?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Be My Valentine? ❤️</title>
     <style>
         :root {
             --primary-red: #ff4d6d;
@@ -16,76 +16,80 @@
             padding: 0;
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: var(--soft-pink);
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-family: 'Arial', sans-serif;
             overflow: hidden;
-            text-align: center;
+            touch-action: manipulation;
         }
 
         .container {
             z-index: 10;
             background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 30px;
+            padding: 30px;
+            border-radius: 25px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 80%;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
         }
 
         h1 {
             color: var(--dark-pink);
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            min-height: 60px;
         }
 
-        .buttons {
+        .btn-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 40px; /* This keeps them separate initially */
             min-height: 100px;
+            position: relative;
         }
 
         button {
-            padding: 15px 35px;
-            font-size: 1.2rem;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
         }
 
         #yesBtn {
             background-color: #4CAF50;
             color: white;
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+            position: relative;
+            z-index: 5;
         }
 
         #noBtn {
             background-color: var(--primary-red);
             color: white;
-            position: absolute;
-            z-index: 999;
+            position: relative; /* Starts relative so it's next to Yes */
+            z-index: 100;
         }
 
-        /* Floating Balloons */
+        /* Balloons */
         .balloon {
             position: absolute;
             bottom: -100px;
-            width: 40px;
-            height: 55px;
+            width: 30px;
+            height: 45px;
             background: var(--primary-red);
             border-radius: 50%;
-            opacity: 0.6;
-            animation: float 7s infinite ease-in;
+            opacity: 0.5;
+            animation: float 6s infinite linear;
+            pointer-events: none;
         }
 
         @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-120vh) rotate(20deg); }
+            to { transform: translateY(-120vh) rotate(20deg); }
         }
     </style>
 </head>
@@ -93,72 +97,95 @@
 
     <div class="container">
         <h1 id="question">Will you be my Valentine? ❤️</h1>
-        <div class="buttons">
+        <div class="btn-container" id="btnGroup">
             <button id="yesBtn" onclick="celebrate()">Yes</button>
-            <button id="noBtn" onclick="plead()">No</button>
+            <button id="noBtn">No</button>
         </div>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
-        const questionText = document.getElementById('question');
         const yesBtn = document.getElementById('yesBtn');
+        const questionText = document.getElementById('question');
         
         let noClickCount = 0;
+        let isFirstMove = true;
         const arguments = [
             "Are you sure?? 🥺",
             "Pachi mara jevo handsome boy nai male ho! 😎",
             "Please mani Jane... 😭🥰"
         ];
 
-        // 1. Make the button move on hover
-        noBtn.addEventListener('mouseover', moveButton);
-
         function moveButton() {
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            noBtn.style.left = `${x}px`;
-            noBtn.style.top = `${y}px`;
+            // Change to absolute only on the first attempt to move
+            if (isFirstMove) {
+                noBtn.style.position = 'fixed';
+                isFirstMove = false;
+            }
+
+            const padding = 50;
+            const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+            const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+            
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+            
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
         }
 
-        // 2. If she actually manages to click it
-        function plead() {
+        // Mouse move/hover
+        noBtn.addEventListener('mouseenter', moveButton);
+
+        // Mobile touch logic
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault(); 
+            moveButton();
+            handleNoLogic(); 
+        });
+
+        // Click logic (if caught)
+        noBtn.addEventListener('click', handleNoLogic);
+
+        function handleNoLogic() {
             if (noClickCount < arguments.length) {
                 questionText.innerHTML = arguments[noClickCount];
                 noClickCount++;
                 
-                // Make the YES button bigger every time she says no
+                // Yes button grows to become more tempting
                 let currentSize = parseFloat(window.getComputedStyle(yesBtn).fontSize);
-                yesBtn.style.fontSize = (currentSize + 10) + "px";
-                yesBtn.style.padding = "20px 45px";
+                yesBtn.style.fontSize = (currentSize + 6) + "px";
+                yesBtn.style.padding = (parseFloat(window.getComputedStyle(yesBtn).padding) + 2) + "px";
             } else {
                 questionText.innerHTML = "Okay, you have no choice now! Say Yes! 😂";
-                noBtn.style.display = "none"; // Hide the No button finally
+                noBtn.style.display = "none";
             }
-            moveButton(); // Move it again after clicking
+            moveButton();
         }
 
-        // 3. Success logic
         function celebrate() {
-            questionText.innerHTML = "Yay! I knew you'd say Yes! 🌹✨";
-            document.querySelector('.buttons').innerHTML = "<h2 style='color: #4CAF50;'>Best Choice Ever! ❤️</h2>";
-            
-            // Shower of balloons
-            for(let i = 0; i < 50; i++) {
-                setTimeout(createBalloon, i * 100);
-            }
+            document.querySelector('.container').innerHTML = `
+                <h1 style="color: #c9184a;">Yay! Best Choice Ever! 🌹✨</h1>
+                <p style="font-size: 1.2rem; color: #444;">I knew you'd say Yes! ❤️</p>
+            `;
+            // Final celebration balloons
+            for(let i=0; i<40; i++) setTimeout(createBalloon, i*100);
         }
 
         function createBalloon() {
-            const balloon = document.createElement("div");
-            balloon.className = "balloon";
-            balloon.style.left = Math.random() * 100 + "vw";
-            balloon.style.backgroundColor = ['#ff4d6d', '#ff758f', '#ffccd5'][Math.floor(Math.random() * 3)];
-            balloon.style.animationDelay = Math.random() * 2 + "s";
-            document.body.appendChild(balloon);
+            const b = document.createElement("div");
+            b.className = "balloon";
+            b.style.left = Math.random() * 100 + "vw";
+            b.style.backgroundColor = ['#ff4d6d', '#ff758f', '#ffccd5'][Math.floor(Math.random() * 3)];
+            b.style.animationDuration = (Math.random() * 3 + 4) + "s";
+            document.body.appendChild(b);
         }
 
-        // Initial background balloons
+        // Background atmosphere
+        for(let i=0; i<8; i++) createBalloon();
+    </script>
+</body>
+</html>
         for(let i = 0; i < 10; i++) createBalloon();
     </script>
 </body>
